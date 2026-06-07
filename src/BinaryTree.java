@@ -175,5 +175,24 @@ public class BinaryTree {
     public void preOrder(){
         preOrder( this.root );
     }
+
+    public String toJson() {
+    return toJsonRecursive(this.root);
+}
+
+    private String toJsonRecursive(TreeNode node) {
+        if (node == null) {
+            return "null";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("{");
+        sb.append("\"data\": ").append(node.getData()).append(",");
+        sb.append("\"left\": ").append(toJsonRecursive(node.getLeft())).append(",");
+        sb.append("\"right\": ").append(toJsonRecursive(node.getRight()));
+        sb.append("}");
+        
+        return sb.toString();
+    }
     
 }
