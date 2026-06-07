@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Visualizador de Árvore Binária</title>
+    <style>
+      /* --- CSS: Estilização básica --- */
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f0;
+        margin-top: 20px;
+      }
+      canvas {
+        background-color: white;
+        border: 2px solid #333;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Minha Árvore Binária de Busca</h1>
+    <canvas id="meuCanvas" width="1000" height="500"></canvas>
+
+    <script>
+      // --- JAVASCRIPT: A Lógica de Desenho ---
+
+      // 1. Pegamos o Canvas e o "Contexto" (a ferramenta que usamos para desenhar em 2D)
+      const canvas = document.getElementById("meuCanvas");
+      const ctx = canvas.getContext("2d");
+
+      // 2. Nossa função recursiva de desenho
+      function desenharArvore(no, x, y, deslocamentoHorizontal) {
+        if (no === null) {
+          return; // Se o nó for nulo, paramos por aqui (caso base da recursão)
+        }
+
+        // A altura de cada nível da árvore
+        const espacamentoVertical = 60;
+
+        // --- DESENHAR LINHAS PARA OS FILHOS ---
+        // Desenhamos as linhas primeiro para que fiquem "atrás" dos círculos
+
+        // Se tem filho à esquerda, desenha uma linha até ele
+        if (no.left !== null) {
+          const xEsquerda = x - deslocamentoHorizontal;
+          const yEsquerda = y + espacamentoVertical;
+
+          ctx.beginPath();
+          ctx.moveTo(x, y); // Ponto de partida (nó atual)
+          ctx.lineTo(xEsquerda, yEsquerda); // Ponto de chegada (filho)
+          ctx.stroke(); // Executa o traço
+
+          // Chamada recursiva para desenhar a subárvore esquerda
+          // Note que dividimos o deslocamento por 2 para os nós não baterem
+          desenharArvore(
+            no.left,
+            xEsquerda,
+            yEsquerda,
+            deslocamentoHorizontal / 2,
+          );
+        }
+
+        // Se tem filho à direita, desenha uma linha até ele
+        if (no.right !== null) {
+          const xDireita = x + deslocamentoHorizontal;
+          const yDireita = y + espacamentoVertical;
+
+          ctx.beginPath();
+          ctx.moveTo(x, y);
+          ctx.lineTo(xDireita, yDireita);
+          ctx.stroke();
+
+          // Chamada recursiva para a direita
+          desenharArvore(
+            no.right,
+            xDireita,
+            yDireita,
+            deslocamentoHorizontal / 2,
+          );
+        }
+
+        // --- DESENHAR O NÓ (CÍRCULO) ---
+        ctx.beginPath();
+        ctx.arc(x, y, 20, 0, 2 * Math.PI); // Cria um círculo de raio 20
+        ctx.fillStyle = "#4CAF50"; // Cor de fundo do círculo (Verde)
+        ctx.fill(); // Preenche o círculo
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "#333"; // Cor da borda
+        ctx.stroke(); // Desenha a borda
+
+        // --- DESENHAR O TEXTO (DADO DO NÓ) ---
+        ctx.fillStyle = "white"; // Cor do texto
+        ctx.font = "16px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(no.data, x, y); // Escreve o número exatamente no centro (x, y)
+      }
+
+      // Configurações iniciais de posição
+      const xInicial = canvas.width / 2;
+      const yInicial = 40;
+      const deslocamentoInicial = 150;
+
+      // O comando FETCH para ler o arquivo JSON
+      fetch("../src/arvore.json")
+        .then((resposta) => {
+          // Verifica se o arquivo foi encontrado com sucesso
+          if (!resposta.ok) {
+            throw new Error("Não foi possível carregar o arquivo arvore.json");
+          }
+          return resposta.json(); // Transforma o texto do arquivo em um objeto JavaScript
+        })
+        .then((dadosDaArvore) => {
+          // Agora que temos os dados reais do Java, mandamos desenhar!
+          desenharArvore(
+            dadosDaArvore,
+            xInicial,
+            yInicial,
+            deslocamentoInicial,
+          );
+        })
+        .catch((erro) => {
+          // Se algo der errado (ex: arquivo não existe), mostramos no console
+          console.error("Ops! Tivemos um problema:", erro);
+        });
+
+      desenharArvore(dadosJsonDoJava, xInicial, yInicial, deslocamentoInicial);
+    </script>
+  </body>
+</html>
